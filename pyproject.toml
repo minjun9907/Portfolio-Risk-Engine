@@ -1,0 +1,15 @@
+[project]
+name = "portfolio-risk-engine"
+version = "0.1.0"
+description = "Multi-asset portfolio risk engine: VaR, ES, EVT, GARCH, factor models, regime detection, backtesting"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-v --tb=short"
+markers = ["slow: tests that require network access"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+ignore_missing_imports = true
