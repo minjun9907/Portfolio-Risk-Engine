@@ -14,7 +14,6 @@
 - **VaR decomposition** — Marginal, component (Euler), incremental VaR
 - **Greeks integration** — Portfolio-level Greeks with scenario P&L heatmap via [Option Pricing Engine](https://github.com/minjun9907/Option-Pricing-Engine)
 - **Liquidity risk** — Bid-ask cost estimation, liquidity-adjusted VaR, stressed LVaR
-- **99 unit tests** across all modules
 
 ## Quick Start
 
