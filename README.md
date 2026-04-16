@@ -42,6 +42,89 @@ print(f"Parametric 95% VaR: {param.var:.4f}")
 print(f"EVT 99% VaR:        {evt.var:.4f}")
 ```
 
+## Examples
+
+### VaR Comparison (5 Methods)
+
+```python
+from risk.var import historical_var, parametric_var, cornish_fisher_var, evt_var
+
+hist = historical_var(port_ret, confidence=0.95)
+param = parametric_var(port_ret, confidence=0.95)
+cf = cornish_fisher_var(port_ret, confidence=0.95)
+evt = evt_var(port_ret, confidence=0.99)
+```
+```
+Historical 95% VaR:     0.0128   ES: 0.0167
+Parametric 95% VaR:     0.0129   ES: 0.0161
+Cornish-Fisher 95% VaR: 0.0125
+EVT 99% VaR:            0.0192   (xi=-0.110)
+```
+
+### VaR Decomposition — Where Is the Risk?
+
+```python
+from risk.var_decomposition import component_var
+
+components = component_var(returns, weights)
+```
+```
+AAPL:  0.0042   (32.6%)
+GOOGL: 0.0031   (23.9%)
+MSFT:  0.0028   (22.0%)
+JPM:   0.0028   (21.5%)
+Sum:   0.0129   = total portfolio VaR (Euler's theorem)
+```
+
+### Regime Detection — Adapt Risk to Market State
+
+```python
+from risk.regime import rule_based_regime, regime_conditional_var
+
+regimes = rule_based_regime(port_ret)
+rcvar = regime_conditional_var(port_ret, regimes)
+```
+```
+State 0 (low-vol):  639 days   95% VaR: 0.0115
+State 1 (high-vol): 620 days   95% VaR: 0.0144
+Transition: stay low-vol = 0.92, switch to high-vol = 0.08
+```
+
+### Stress Testing — What If 2008 Happens Again?
+
+```python
+from risk.stress_testing import hypothetical_scenario, reverse_stress_test
+
+result = hypothetical_scenario(portfolio, {"AAPL": -0.10, "GOOGL": -0.08, "MSFT": -0.06, "JPM": -0.12})
+```
+```
+Portfolio P&L: -0.0890
+  AAPL:  -0.0300
+  GOOGL: -0.0200
+  MSFT:  -0.0150
+  JPM:   -0.0240
+```
+```python
+# Reverse stress test: what shock causes a 10% loss?
+shocks = reverse_stress_test(portfolio, returns, target_loss=-0.10)
+```
+```
+AAPL: -0.1176   GOOGL: -0.0980   MSFT: -0.0980   JPM: -0.0784
+```
+
+### Volatility Models — Static vs EWMA vs GARCH
+
+```python
+from risk.volatility import compare_vol_models
+
+vols = compare_vol_models(port_ret)
+```
+```
+Static: 0.007823   (constant — ignores regime changes)
+EWMA:   0.007677   (adapts to recent volatility)
+GARCH:  0.007803   (mean-reverting conditional vol)
+```
+
 ## Architecture
 
 ```
