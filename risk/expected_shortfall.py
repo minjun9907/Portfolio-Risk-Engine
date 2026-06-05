@@ -37,7 +37,7 @@ def monte_carlo_es(
     returns: pd.DataFrame,
     weights: list[float],
     confidence: float = 0.95,
-    n_sims: int = 10_000,
+    n_sims: int = 100_000,
 ) -> float:
     """Monte Carlo Expected Shortfall.
 

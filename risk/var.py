@@ -86,7 +86,7 @@ def monte_carlo_var(
     returns: pd.DataFrame,
     weights: list[float],
     confidence: float = 0.95,
-    n_sims: int = 10_000,
+    n_sims: int = 100_000,
 ) -> VaRResult:
     """Monte Carlo VaR with correlated simulations.
 
@@ -141,15 +141,26 @@ def cornish_fisher_var(returns: pd.Series, confidence: float = 0.95) -> VaRResul
 
     var = -mu + z_cf * sigma
 
-    # ES approximation: use historical ES as fallback
-    losses = -returns
-    historical_threshold = float(np.percentile(losses, confidence * 100))
-    tail = losses[losses >= historical_threshold]
-    es = float(tail.mean()) if len(tail) > 0 else var
+    # ES via numerical integration of the CF quantile function.
+    # ES = 1/(1-alpha) * integral from alpha to 1 of CF_VaR(u) du
+    from scipy import integrate
+
+    def cf_quantile(p: float) -> float:
+        z_p = stats.norm.ppf(p)
+        z_cf_p = (
+            z_p
+            + (z_p ** 2 - 1) * S / 6
+            + (z_p ** 3 - 3 * z_p) * K / 24
+            - (2 * z_p ** 3 - 5 * z_p) * S ** 2 / 36
+        )
+        return float(-mu + z_cf_p * sigma)
+
+    es_integral, _ = integrate.quad(cf_quantile, confidence, 1.0 - 1e-10)
+    es = es_integral / (1 - confidence)
 
     return VaRResult(
         var=float(var),
-        es=es,
+        es=float(es),
         confidence=confidence,
         method=VaRMethod.CORNISH_FISHER,
         details={"skewness": S, "excess_kurtosis": K, "z_cf": float(z_cf)},
