@@ -3,7 +3,6 @@
 Tests whether a VaR model's predictions are accurate by comparing
 forecasted VaR against realized losses. Includes statistical tests
 (Kupiec, Christoffersen) and the Basel traffic light classification.
-This is literally the job of a risk model validation analyst.
 """
 
 import numpy as np

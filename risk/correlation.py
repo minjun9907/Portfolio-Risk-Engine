@@ -15,18 +15,18 @@ def rolling_correlation(returns: pd.DataFrame, window: int = 60) -> pd.DataFrame
     asset pairs over the trailing window. High values indicate regime stress
     when assets move together.
     """
-    n_assets = returns.shape[1]
-    rolling_corr = pd.Series(index=returns.index, dtype=float)
+    n = returns.shape[1]
+    # Stack rolling pairwise correlations, then average the upper triangle
+    rolling_corr_stack = returns.rolling(window).corr()
+    mask = np.triu(np.ones((n, n), dtype=bool), k=1)
 
-    for i in range(window, len(returns) + 1):
-        window_data = returns.iloc[i - window : i]
-        corr_matrix = window_data.corr()
-        # Average of upper triangle (excluding diagonal)
-        mask = np.triu(np.ones_like(corr_matrix, dtype=bool), k=1)
-        avg_corr = corr_matrix.values[mask].mean()
-        rolling_corr.iloc[i - 1] = avg_corr
-
-    return rolling_corr.to_frame(name="avg_correlation")
+    avg_corr = (
+        rolling_corr_stack
+        .groupby(level=0)
+        .apply(lambda m: m.values[mask].mean() if not np.isnan(m.values).all() else np.nan)
+    )
+    avg_corr.name = "avg_correlation"
+    return avg_corr.to_frame()
 
 
 def eigenvalue_decomposition(cov_matrix: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
