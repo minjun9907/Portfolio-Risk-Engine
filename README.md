@@ -180,6 +180,23 @@ tests/
 | Factor models | `risk/factor_model.py` |
 | Options risk (Greeks) | `risk/greeks.py` |
 
+## Historical Crisis Backtests
+
+Real-data validation across 4 major market crises — portfolio: AAPL 30% | GOOGL 25% | MSFT 25% | JPM 20%.
+
+Pre-crisis 95% VaR calibrated on 6-month rolling window; breach rate measured over the crisis window.
+
+| Scenario | Crisis Window | Total Return | Max Drawdown | Worst Day | 95% VaR Breach Rate |
+|---|---|---|---|---|---|
+| 2008 GFC | Sep 2008 – Mar 2009 | -36.4% | -50.7% | -14.54% | 24.4% (expected 5%) |
+| COVID-19 | Feb 2020 – Mar 2020 | -33.2% | -31.6% | -14.45% | 61.9% (expected 5%) |
+| 2022 Rate Hikes | Jan 2022 – Oct 2022 | -30.4% | -32.8% | -5.46% | 24.0% (expected 5%) |
+| 2023 SVB | Mar 2023 | +6.9% | -1.3% | -1.31% | 0.0% (no exposure) |
+
+**Key finding:** 95% VaR — calibrated on pre-crisis normal-market data — was breached on 24–62% of crisis days, versus the expected 5%. This directly demonstrates why Basel III shifted from VaR to Expected Shortfall as the standard risk measure: normal-distribution-based VaR systematically underestimates tail risk during stress events.
+
+Run it yourself: `python notebooks/historical_scenario_backtest.py`
+
 ## Related Projects
 
 - [Option Pricing Engine](https://github.com/minjun9907/Option-Pricing-Engine) — Black-Scholes, Binomial, Monte Carlo pricing with Greeks. Used by `risk/greeks.py` for portfolio-level derivatives risk.
